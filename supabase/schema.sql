@@ -32,3 +32,10 @@ create policy "delete own transactions"
   using (auth.uid() = user_id);
 
 create index if not exists transactions_user_id_idx on public.transactions(user_id);
+
+-- Table-level grant to PostgREST's "authenticated" role. Needed regardless of
+-- the "Automatically expose new tables" project setting — RLS policies above
+-- control *which rows*, this controls whether the API can touch the table at
+-- all. Only "authenticated" gets it; "anon" is left with no access since
+-- every operation here requires a logged-in user.
+grant select, insert, update, delete on public.transactions to authenticated;
