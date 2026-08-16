@@ -10,12 +10,23 @@ const PROXIES = [
 
 const cache = new Map() // ticker -> { price, changePercent, fetchedAt }
 const CACHE_TTL_MS = 60_000
+const PROXY_TIMEOUT_MS = 6_000
+
+async function fetchWithTimeout(url, timeoutMs) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
 
 async function fetchViaProxies(yahooUrl) {
   let lastError
   for (const buildProxyUrl of PROXIES) {
     try {
-      const res = await fetch(buildProxyUrl(yahooUrl))
+      const res = await fetchWithTimeout(buildProxyUrl(yahooUrl), PROXY_TIMEOUT_MS)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return await res.json()
     } catch (err) {
