@@ -22,7 +22,7 @@ export default function Dashboard() {
 
     const { data: transactions, error: txError } = await supabase
       .from('transactions')
-      .select('*')
+      .select('*, categories(name)')
       .eq('user_id', user.id)
       .order('trade_date', { ascending: true })
 
@@ -32,7 +32,12 @@ export default function Dashboard() {
       return
     }
 
-    const holdings = computeHoldings(transactions ?? [])
+    const withCategoryName = (transactions ?? []).map((t) => ({
+      ...t,
+      category: t.categories?.name ?? '未分類',
+    }))
+
+    const holdings = computeHoldings(withCategoryName)
     if (holdings.length === 0) {
       setRollup([])
       setTotalValue(0)

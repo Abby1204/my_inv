@@ -154,3 +154,29 @@
   padding: 0;
   text-decoration: underline;
 }
+
+/* Categories */
+.page-hint {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.category-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.category-form input {
+  flex: 1;
+}
+
+.category-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.category-actions button {
+  padding: 4px 10px;
+}

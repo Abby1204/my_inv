@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
+import Categories from './pages/Categories'
 import './App.css'
 
 function NavBar() {
@@ -22,6 +23,7 @@ function NavBar() {
       <span className="brand">Investment</span>
       <Link to="/">Dashboard</Link>
       <Link to="/transactions">交易紀錄</Link>
+      <Link to="/categories">分類管理</Link>
       <span className="nav-spacer" />
       <span className="nav-user">{user.email}</span>
       <button onClick={handleSignOut}>登出</button>
@@ -49,6 +51,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Transactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <Categories />
               </ProtectedRoute>
             }
           />
