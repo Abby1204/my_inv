@@ -15,6 +15,10 @@ dist-ssr
 .env.*
 !.env.example
 
+# One-off scripts with real personal/financial data — never commit these,
+# this repo is public. Copy contents into Supabase SQL Editor manually.
+supabase/import_*.sql
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
