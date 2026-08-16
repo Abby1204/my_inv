@@ -20,21 +20,35 @@ export default function Dashboard() {
     setError('')
     setPriceError(false)
 
-    const { data: transactions, error: txError } = await supabase
-      .from('transactions')
-      .select('*, categories(name)')
-      .eq('user_id', user.id)
-      .order('trade_date', { ascending: true })
+    const [txResult, secResult] = await Promise.all([
+      supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('trade_date', { ascending: true }),
+      supabase
+        .from('securities')
+        .select('ticker, categories(name)')
+        .eq('user_id', user.id),
+    ])
 
-    if (txError) {
-      setError(txError.message)
+    if (txResult.error) {
+      setError(txResult.error.message)
+      setLoading(false)
+      return
+    }
+    if (secResult.error) {
+      setError(secResult.error.message)
       setLoading(false)
       return
     }
 
-    const withCategoryName = (transactions ?? []).map((t) => ({
+    const categoryByTicker = {}
+    for (const s of secResult.data) categoryByTicker[s.ticker] = s.categories?.name ?? '未分類'
+
+    const withCategoryName = (txResult.data ?? []).map((t) => ({
       ...t,
-      category: t.categories?.name ?? '未分類',
+      category: categoryByTicker[t.ticker] ?? '未分類',
     }))
 
     const holdings = computeHoldings(withCategoryName)

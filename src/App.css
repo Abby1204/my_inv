@@ -143,8 +143,9 @@
   font-size: 14px;
 }
 
-.tx-form button {
-  align-self: flex-start;
+.tx-form-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .link-btn {

@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Categories from './pages/Categories'
+import Securities from './pages/Securities'
 import './App.css'
 
 function NavBar() {
@@ -23,6 +24,7 @@ function NavBar() {
       <span className="brand">Investment</span>
       <Link to="/">Dashboard</Link>
       <Link to="/transactions">交易紀錄</Link>
+      <Link to="/securities">股票管理</Link>
       <Link to="/categories">分類管理</Link>
       <span className="nav-spacer" />
       <span className="nav-user">{user.email}</span>
@@ -59,6 +61,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Categories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/securities"
+            element={
+              <ProtectedRoute>
+                <Securities />
               </ProtectedRoute>
             }
           />

@@ -1,7 +1,7 @@
 -- Run this once in Supabase SQL Editor (Project > SQL Editor > New query).
--- For a project that already ran an older version of this file (transactions
--- with a free-text "category" column), run supabase/migration_002_categories.sql
--- instead — it upgrades an existing table in place.
+-- For a project that already ran an older version of this file, run the
+-- migration_00N_*.sql files in order instead — they upgrade an existing
+-- database in place without losing data.
 
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
@@ -32,11 +32,41 @@ create policy "delete own categories"
 
 grant select, insert, update, delete on public.categories to authenticated;
 
-create table if not exists public.transactions (
+-- One row per ticker you trade. Category lives here, not on each
+-- transaction — a ticker always belongs to the same category.
+create table if not exists public.securities (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   ticker text not null,
   category_id uuid not null references public.categories(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  unique (user_id, ticker)
+);
+
+alter table public.securities enable row level security;
+
+create policy "select own securities"
+  on public.securities for select
+  using (auth.uid() = user_id);
+
+create policy "insert own securities"
+  on public.securities for insert
+  with check (auth.uid() = user_id);
+
+create policy "update own securities"
+  on public.securities for update
+  using (auth.uid() = user_id);
+
+create policy "delete own securities"
+  on public.securities for delete
+  using (auth.uid() = user_id);
+
+grant select, insert, update, delete on public.securities to authenticated;
+
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  ticker text not null,
   action text not null check (action in ('buy', 'sell')),
   shares numeric not null check (shares > 0),
   price numeric not null check (price >= 0),
@@ -64,7 +94,6 @@ create policy "delete own transactions"
   using (auth.uid() = user_id);
 
 create index if not exists transactions_user_id_idx on public.transactions(user_id);
-create index if not exists transactions_category_id_idx on public.transactions(category_id);
 
 -- Table-level grant to PostgREST's "authenticated" role. Needed regardless of
 -- the "Automatically expose new tables" project setting — RLS policies above
