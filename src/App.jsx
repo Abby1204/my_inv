@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Categories from './pages/Categories'
 import Securities from './pages/Securities'
+import { useTheme } from './hooks/useTheme'
 import './App.css'
 
 const TABS = [
@@ -39,6 +40,30 @@ const TABS = [
   },
 ]
 
+function ThemeToggle() {
+  const [theme, setTheme] = useTheme()
+  const isLight = theme === 'light'
+
+  return (
+    <button
+      className="theme-toggle"
+      onClick={() => setTheme(isLight ? 'dark' : 'light')}
+      aria-label={isLight ? '切換成深色模式' : '切換成淺色模式'}
+    >
+      {isLight ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      )}
+    </button>
+  )
+}
+
 function TopBar() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -53,7 +78,10 @@ function TopBar() {
   return (
     <header className="top-bar">
       <span className="brand">Investment</span>
-      <button className="signout-btn" onClick={handleSignOut}>登出</button>
+      <div className="top-bar-actions">
+        <ThemeToggle />
+        <button className="signout-btn" onClick={handleSignOut}>登出</button>
+      </div>
     </header>
   )
 }

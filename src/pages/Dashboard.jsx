@@ -8,7 +8,28 @@ import { computeHoldings, computeCategoryRollup } from '../lib/portfolio'
 const money = (n) => n == null ? '—' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 const pct = (n) => n == null ? '—' : `${n.toFixed(1)}%`
 
-const CHART_COLORS = ['#c084fc', '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#38bdf8', '#a78bfa', '#fb923c']
+// Ordered so adjacent hues stay far apart on the color wheel — avoids the
+// purple-next-to-violet mixup the previous palette had.
+const CHART_COLORS = ['#f87171', '#60a5fa', '#fbbf24', '#a78bfa', '#34d399', '#f472b6', '#22d3ee', '#fb923c']
+
+function renderDonutLabel({ cx, cy, midAngle, outerRadius, category, percent }) {
+  const RADIAN = Math.PI / 180
+  const radius = outerRadius + 16
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  return (
+    <text
+      x={x}
+      y={y}
+      style={{ fill: 'var(--text)' }}
+      fontSize={11}
+      textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central"
+    >
+      {`${category} ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )
+}
 
 function ChangeBadge({ value }) {
   if (value == null) return null
@@ -109,16 +130,18 @@ export default function Dashboard() {
       ) : (
         <>
           <div className="donut-wrap">
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
                   data={rollup}
                   dataKey="currentValue"
                   nameKey="category"
-                  innerRadius={50}
-                  outerRadius={80}
+                  innerRadius={55}
+                  outerRadius={85}
                   paddingAngle={2}
                   stroke="none"
+                  label={renderDonutLabel}
+                  labelLine={{ stroke: 'var(--border)' }}
                 >
                   {rollup.map((_, i) => (
                     <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />

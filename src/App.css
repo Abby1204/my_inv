@@ -24,9 +24,27 @@
   color: var(--text-h);
 }
 
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .signout-btn {
   font-size: 13px;
   padding: 6px 12px;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 
 .bottom-nav {
@@ -169,13 +187,13 @@
 }
 
 .change-badge.up {
-  color: #34d399;
-  background: rgba(52, 211, 153, 0.12);
+  color: var(--up-color);
+  background: var(--up-bg);
 }
 
 .change-badge.down {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.12);
+  color: var(--down-color);
+  background: var(--down-bg);
 }
 
 .warn-banner {
@@ -351,13 +369,13 @@
 }
 
 .tx-action-badge.buy {
-  color: #34d399;
-  background: rgba(52, 211, 153, 0.12);
+  color: var(--up-color);
+  background: var(--up-bg);
 }
 
 .tx-action-badge.sell {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.12);
+  color: var(--down-color);
+  background: var(--down-bg);
 }
 
 .tx-date {

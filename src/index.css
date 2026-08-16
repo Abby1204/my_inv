@@ -6,6 +6,10 @@
   --border: #2e303a;
   --accent: #c084fc;
   --danger: #f87171;
+  --up-color: #34d399;
+  --up-bg: rgba(52, 211, 153, 0.12);
+  --down-color: #f87171;
+  --down-bg: rgba(248, 113, 113, 0.12);
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
@@ -17,6 +21,23 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] {
+  --text: #52525b;
+  --text-h: #18181b;
+  --bg: #f4f4f6;
+  --bg-panel: #ffffff;
+  --border: #e2e2e6;
+  --accent: #9333ea;
+  --danger: #dc2626;
+  --up-color: #059669;
+  --up-bg: rgba(5, 150, 105, 0.1);
+  --down-color: #dc2626;
+  --down-bg: rgba(220, 38, 38, 0.1);
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg);
 }
 
 * {
