@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [rollup, setRollup] = useState([])
   const [totalValue, setTotalValue] = useState(0)
   const [dayChangePercent, setDayChangePercent] = useState(null)
+  const [totalRealizedGain, setTotalRealizedGain] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [priceError, setPriceError] = useState(false)
@@ -86,8 +87,11 @@ export default function Dashboard() {
       category: categoryByTicker[t.ticker] ?? '未分類',
     }))
 
-    const holdings = computeHoldings(withCategoryName)
-    if (holdings.length === 0) {
+    const allHoldings = computeHoldings(withCategoryName)
+    setTotalRealizedGain(allHoldings.reduce((sum, h) => sum + h.realizedGain, 0))
+
+    const currentHoldings = allHoldings.filter((h) => h.shares > 1e-9)
+    if (currentHoldings.length === 0) {
       setRollup([])
       setTotalValue(0)
       setDayChangePercent(null)
@@ -95,10 +99,10 @@ export default function Dashboard() {
       return
     }
 
-    const quotes = await getQuotes(holdings.map((h) => h.ticker))
+    const quotes = await getQuotes(currentHoldings.map((h) => h.ticker))
     if (Object.values(quotes).some((q) => q.error)) setPriceError(true)
 
-    const { rollup, totalValue, dayChangePercent } = computeCategoryRollup(holdings, quotes)
+    const { rollup, totalValue, dayChangePercent } = computeCategoryRollup(currentHoldings, quotes)
     setRollup(rollup)
     setTotalValue(totalValue)
     setDayChangePercent(dayChangePercent)
@@ -119,6 +123,12 @@ export default function Dashboard() {
         </div>
         <div className="hero-value">{money(totalValue)}</div>
         <ChangeBadge value={dayChangePercent} />
+        <div className="hero-realized">
+          已實現損益(累計)
+          <span className={totalRealizedGain >= 0 ? 'up-text' : 'down-text'}>
+            {totalRealizedGain >= 0 ? '+' : ''}{money(totalRealizedGain)}
+          </span>
+        </div>
       </section>
 
       {priceError && (

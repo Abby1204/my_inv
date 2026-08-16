@@ -1,13 +1,17 @@
 // Aggregates a flat list of buy/sell transactions into per-ticker holdings
 // using weighted-average cost (not FIFO) — simplest method that stays
 // correct across partial sells without tracking individual lots.
+//
+// Returns EVERY ticker ever traded, including ones fully sold out (shares
+// ~0) — realizedGain is only meaningful if those survive. Callers that want
+// "what do I currently hold" should filter `.shares > 1e-9` themselves.
 export function computeHoldings(transactions) {
   const byTicker = new Map()
 
   for (const tx of transactions) {
     const key = tx.ticker
     if (!byTicker.has(key)) {
-      byTicker.set(key, { ticker: tx.ticker, category: tx.category, shares: 0, costBasis: 0 })
+      byTicker.set(key, { ticker: tx.ticker, category: tx.category, shares: 0, costBasis: 0, realizedGain: 0 })
     }
     const h = byTicker.get(key)
     h.category = tx.category // latest category wins if it was ever changed
@@ -17,17 +21,17 @@ export function computeHoldings(transactions) {
       h.costBasis += tx.shares * tx.price
     } else {
       const avgCost = h.shares > 0 ? h.costBasis / h.shares : 0
+      const soldCost = tx.shares * avgCost
+      h.realizedGain += tx.shares * tx.price - soldCost
       h.shares -= tx.shares
-      h.costBasis -= tx.shares * avgCost
+      h.costBasis -= soldCost
     }
   }
 
-  return [...byTicker.values()]
-    .filter((h) => h.shares > 1e-9)
-    .map((h) => ({
-      ...h,
-      avgCost: h.costBasis / h.shares,
-    }))
+  return [...byTicker.values()].map((h) => ({
+    ...h,
+    avgCost: h.shares > 1e-9 ? h.costBasis / h.shares : 0,
+  }))
 }
 
 export function computeCategoryRollup(holdings, quotes) {

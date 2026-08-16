@@ -196,6 +196,25 @@
   background: var(--down-bg);
 }
 
+.hero-realized {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.up-text {
+  color: var(--up-color);
+  font-weight: 600;
+}
+
+.down-text {
+  color: var(--down-color);
+  font-weight: 600;
+}
+
 .warn-banner {
   color: #fbbf24;
   font-size: 14px;
@@ -254,6 +273,42 @@
 .asset-card-tickers {
   margin-top: 4px;
   font-size: 13px;
+}
+
+/* Profit page */
+.profit-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profit-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.profit-summary-total {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profit-summary-total span:first-child {
+  color: var(--text-h);
+}
+
+.profit-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.profit-sub {
+  font-size: 12px;
 }
 
 /* Forms (transactions / categories / securities) — stacked, the app shell
@@ -401,10 +456,33 @@
   margin-top: 8px;
 }
 
-/* Categories / Securities */
+/* Settings (categories / securities) */
 .page-hint {
   font-size: 14px;
   margin-bottom: 16px;
+}
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.segmented button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px;
+}
+
+.segmented button.active {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--accent);
 }
 
 .category-actions {

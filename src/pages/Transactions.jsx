@@ -85,7 +85,7 @@ export default function Transactions() {
         ? a.created_at.localeCompare(b.created_at)
         : a.trade_date.localeCompare(b.trade_date)
     )
-    return computeHoldings(chronological)
+    return computeHoldings(chronological).filter((h) => h.shares > 1e-9)
   }, [filteredTransactions])
 
   function startEdit(t) {
@@ -151,7 +151,7 @@ export default function Transactions() {
     <div className="transactions-page">
       <h2>交易紀錄</h2>
       <p className="page-hint">
-        股票代號如果沒登記過，會自動歸到「未分類」，之後可以去<Link to="/securities">股票管理</Link>改成正確的分類。
+        股票代號如果沒登記過，會自動歸到「未分類」，之後可以去<Link to="/settings">設定</Link>改成正確的分類。
       </p>
 
       <form className="tx-form" onSubmit={handleSubmit}>
