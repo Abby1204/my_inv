@@ -35,10 +35,33 @@ export function computeCategoryRollup(holdings, quotes) {
     const quote = quotes[h.ticker]
     const price = quote?.price ?? null
     const currentValue = price != null ? price * h.shares : null
-    return { ...h, price, currentValue }
+    const unrealizedGain = currentValue != null ? currentValue - h.costBasis : null
+    const unrealizedGainPercent = currentValue != null && h.costBasis > 0
+      ? (unrealizedGain / h.costBasis) * 100
+      : null
+    return {
+      ...h,
+      price,
+      currentValue,
+      changePercent: quote?.changePercent ?? null,
+      unrealizedGain,
+      unrealizedGainPercent,
+    }
   })
 
   const totalValue = withValue.reduce((sum, h) => sum + (h.currentValue ?? 0), 0)
+  const totalCostBasis = withValue.reduce((sum, h) => sum + h.costBasis, 0)
+  const totalUnrealizedGain = totalValue - totalCostBasis
+  const totalUnrealizedGainPercent = totalCostBasis > 0 ? (totalUnrealizedGain / totalCostBasis) * 100 : null
+
+  // Weighted by each holding's share of total value, so a big position's
+  // daily move dominates the headline number the way it should.
+  const dayChangePercent = totalValue > 0
+    ? withValue.reduce((sum, h) => {
+        if (h.currentValue == null || h.changePercent == null) return sum
+        return sum + h.changePercent * (h.currentValue / totalValue)
+      }, 0)
+    : null
 
   const byCategory = new Map()
   for (const h of withValue) {
@@ -57,5 +80,13 @@ export function computeCategoryRollup(holdings, quotes) {
     }))
     .sort((a, b) => b.weightPercent - a.weightPercent)
 
-  return { rollup, totalValue, holdings: withValue }
+  return {
+    rollup,
+    totalValue,
+    totalCostBasis,
+    totalUnrealizedGain,
+    totalUnrealizedGainPercent,
+    dayChangePercent,
+    holdings: withValue,
+  }
 }

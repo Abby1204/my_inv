@@ -1,37 +1,67 @@
-.navbar {
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  border-inline: 1px solid var(--border);
 }
 
-.navbar .brand {
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 5;
+}
+
+.top-bar .brand {
   font-weight: 600;
   color: var(--text-h);
 }
 
-.navbar a {
-  color: var(--text);
-  text-decoration: none;
+.signout-btn {
+  font-size: 13px;
+  padding: 6px 12px;
 }
 
-.navbar a:hover {
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.bottom-nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.bottom-nav-tab svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-tab.active {
   color: var(--accent);
 }
 
-.nav-spacer {
-  flex: 1;
-}
-
-.nav-user {
-  font-size: 14px;
-}
-
 .app-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px;
+  flex: 1;
+  padding: 20px 20px 32px;
 }
 
 .page-loading, .page-error {
@@ -52,7 +82,8 @@
 }
 
 .auth-card {
-  width: 340px;
+  width: 100%;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -95,16 +126,56 @@
 }
 
 /* Dashboard */
-.dashboard-header {
+.hero {
+  padding: 20px;
+  margin-bottom: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
-.total-value {
-  margin-bottom: 16px;
-  font-size: 15px;
+.hero-label {
+  font-size: 13px;
+}
+
+.refresh-btn {
+  padding: 4px 10px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hero-value {
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 6px 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.change-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.change-badge.up {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.change-badge.down {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
 }
 
 .warn-banner {
@@ -113,25 +184,76 @@
   margin-bottom: 16px;
 }
 
-.rollup-table td:nth-child(3),
-.rollup-table td:nth-child(4) {
+.donut-wrap {
+  margin-bottom: 8px;
+}
+
+.category-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.asset-card {
+  padding: 14px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.asset-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.asset-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.asset-name {
+  flex: 1;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.asset-weight {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
+}
+
+.asset-card-value {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
   font-variant-numeric: tabular-nums;
 }
 
-/* Transactions */
-.tx-form {
+.asset-card-tickers {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+/* Forms (transactions / categories / securities) — stacked, the app shell
+   itself is phone-width so there's no need for a wide multi-column layout */
+.tx-form, .category-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
-  margin-bottom: 28px;
+  padding: 16px;
+  margin-bottom: 24px;
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .tx-form-row {
   display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
@@ -156,20 +278,17 @@
   text-decoration: underline;
 }
 
-/* Categories */
+/* Tables scroll horizontally instead of squeezing on a phone-width shell */
+.tx-table, .rollup-table, .category-table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Categories / Securities */
 .page-hint {
   font-size: 14px;
   margin-bottom: 16px;
-}
-
-.category-form {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.category-form input {
-  flex: 1;
 }
 
 .category-actions {

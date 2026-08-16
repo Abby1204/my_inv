@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { getQuotes } from '../lib/prices'
@@ -7,10 +8,23 @@ import { computeHoldings, computeCategoryRollup } from '../lib/portfolio'
 const money = (n) => n == null ? '—' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 const pct = (n) => n == null ? '—' : `${n.toFixed(1)}%`
 
+const CHART_COLORS = ['#c084fc', '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#38bdf8', '#a78bfa', '#fb923c']
+
+function ChangeBadge({ value }) {
+  if (value == null) return null
+  const isUp = value >= 0
+  return (
+    <span className={`change-badge ${isUp ? 'up' : 'down'}`}>
+      {isUp ? '▲' : '▼'} {Math.abs(value).toFixed(2)}%
+    </span>
+  )
+}
+
 export default function Dashboard() {
   const { user } = useAuth()
   const [rollup, setRollup] = useState([])
   const [totalValue, setTotalValue] = useState(0)
+  const [dayChangePercent, setDayChangePercent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [priceError, setPriceError] = useState(false)
@@ -55,6 +69,7 @@ export default function Dashboard() {
     if (holdings.length === 0) {
       setRollup([])
       setTotalValue(0)
+      setDayChangePercent(null)
       setLoading(false)
       return
     }
@@ -62,9 +77,10 @@ export default function Dashboard() {
     const quotes = await getQuotes(holdings.map((h) => h.ticker))
     if (Object.values(quotes).some((q) => q.error)) setPriceError(true)
 
-    const { rollup, totalValue } = computeCategoryRollup(holdings, quotes)
+    const { rollup, totalValue, dayChangePercent } = computeCategoryRollup(holdings, quotes)
     setRollup(rollup)
     setTotalValue(totalValue)
+    setDayChangePercent(dayChangePercent)
     setLoading(false)
   }, [user.id])
 
@@ -75,40 +91,59 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>美股產業配置分類</h2>
-        <button onClick={load}>重新整理</button>
-      </div>
+      <section className="hero">
+        <div className="hero-top">
+          <span className="hero-label">總市值</span>
+          <button className="refresh-btn" onClick={load} aria-label="重新整理">⟳</button>
+        </div>
+        <div className="hero-value">{money(totalValue)}</div>
+        <ChangeBadge value={dayChangePercent} />
+      </section>
 
       {priceError && (
         <p className="warn-banner">部分股價抓取失敗（可能是 CORS proxy 暫時不穩定），已顯示可用的資料。</p>
       )}
 
-      <p className="total-value">總市值：{money(totalValue)}</p>
-
       {rollup.length === 0 ? (
         <p>目前沒有持股，去「交易紀錄」頁面新增買進紀錄。</p>
       ) : (
-        <table className="rollup-table">
-          <thead>
-            <tr>
-              <th>分類</th>
-              <th>個股</th>
-              <th>現值</th>
-              <th>現值佔比</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rollup.map((c) => (
-              <tr key={c.category}>
-                <td>{c.category}</td>
-                <td>{c.holdings.map((h) => `${h.ticker}(${h.shares}股)`).join('、')}</td>
-                <td>{money(c.currentValue)}</td>
-                <td>{pct(c.weightPercent)}</td>
-              </tr>
+        <>
+          <div className="donut-wrap">
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie
+                  data={rollup}
+                  dataKey="currentValue"
+                  nameKey="category"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  stroke="none"
+                >
+                  {rollup.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="category-cards">
+            {rollup.map((c, i) => (
+              <div className="asset-card" key={c.category}>
+                <div className="asset-card-top">
+                  <span className="asset-dot" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
+                  <span className="asset-name">{c.category}</span>
+                  <span className="asset-weight">{pct(c.weightPercent)}</span>
+                </div>
+                <div className="asset-card-value">{money(c.currentValue)}</div>
+                <div className="asset-card-tickers">
+                  {c.holdings.map((h) => `${h.ticker}(${h.shares}股)`).join('、')}
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </div>
   )
