@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { ensureSecurity } from '../lib/securities'
+import { computeHoldings } from '../lib/portfolio'
+
+const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 
 const emptyForm = {
   ticker: '',
@@ -70,6 +73,13 @@ export default function Transactions() {
       (tickerFilter === 'all' || t.ticker === tickerFilter)
     ),
     [transactions, monthFilter, tickerFilter]
+  )
+  // Net shares + weighted-avg cost per ticker, scoped to whatever's
+  // currently filtered — reuses the same math the Dashboard uses for
+  // holdings, just fed the filtered subset instead of everything.
+  const summary = useMemo(
+    () => computeHoldings(filteredTransactions),
+    [filteredTransactions]
   )
 
   function startEdit(t) {
@@ -244,38 +254,42 @@ export default function Transactions() {
       ) : filteredTransactions.length === 0 ? (
         <p>沒有符合篩選條件的交易紀錄。</p>
       ) : (
-        <table className="tx-table">
-          <thead>
-            <tr>
-              <th>日期</th>
-              <th>代號</th>
-              <th>分類</th>
-              <th>買/賣</th>
-              <th>股數</th>
-              <th>成交價</th>
-              <th>備註</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {summary.length > 0 && (
+            <div className="tx-summary">
+              {summary.map((h) => (
+                <div className="tx-summary-row" key={h.ticker}>
+                  <span className="tx-summary-ticker">{h.ticker}</span>
+                  <span>淨股數 {h.shares}</span>
+                  <span>平均成本 {money(h.avgCost)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="tx-history-list">
             {filteredTransactions.map((t) => (
-              <tr key={t.id}>
-                <td>{t.trade_date}</td>
-                <td>{t.ticker}</td>
-                <td>{categoryByTicker[t.ticker] ?? '—'}</td>
-                <td>{t.action === 'buy' ? '買進' : '賣出'}</td>
-                <td>{t.shares}</td>
-                <td>{t.price}</td>
-                <td>{t.note}</td>
-                <td>
+              <div className="tx-row" key={t.id}>
+                <div className="tx-row-top">
+                  <span className="tx-ticker">{t.ticker}</span>
+                  <span className={`tx-action-badge ${t.action}`}>
+                    {t.action === 'buy' ? '買進' : '賣出'}
+                  </span>
+                  <span className="tx-date">{t.trade_date}</span>
+                </div>
+                <div className="tx-row-mid">
+                  <span>{categoryByTicker[t.ticker] ?? '—'}</span>
+                  <span>{t.shares} 股 @ {t.price}</span>
+                </div>
+                {t.note && <div className="tx-row-note">{t.note}</div>}
+                <div className="tx-row-actions">
                   <button className="link-btn" onClick={() => startEdit(t)}>編輯</button>
-                  {' '}
                   <button className="link-btn" onClick={() => handleDelete(t.id)}>刪除</button>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </div>
   )

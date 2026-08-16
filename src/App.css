@@ -289,10 +289,98 @@
 }
 
 /* Tables scroll horizontally instead of squeezing on a phone-width shell */
-.tx-table, .rollup-table, .category-table {
+.category-table {
   display: block;
   overflow-x: auto;
   white-space: nowrap;
+}
+
+/* Transaction history — card list instead of a table, so nothing needs to
+   scroll sideways on a phone-width screen */
+.tx-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.tx-summary-row {
+  display: flex;
+  gap: 12px;
+}
+
+.tx-summary-ticker {
+  font-weight: 600;
+  color: var(--text-h);
+  min-width: 48px;
+}
+
+.tx-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tx-row {
+  padding: 12px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tx-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tx-ticker {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.tx-action-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.tx-action-badge.buy {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.tx-action-badge.sell {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.tx-date {
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.tx-row-mid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.tx-row-note {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.tx-row-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 /* Categories / Securities */
