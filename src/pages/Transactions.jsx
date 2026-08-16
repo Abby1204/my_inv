@@ -81,6 +81,7 @@ export default function Transactions() {
           <label>
             股票代號
             <input
+              name="ticker"
               value={form.ticker}
               onChange={(e) => setForm({ ...form, ticker: e.target.value })}
               placeholder="AAPL"
@@ -91,6 +92,7 @@ export default function Transactions() {
           <label>
             分類
             <input
+              name="category"
               list="category-options"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -103,7 +105,11 @@ export default function Transactions() {
 
           <label>
             買/賣
-            <select value={form.action} onChange={(e) => setForm({ ...form, action: e.target.value })}>
+            <select
+              name="action"
+              value={form.action}
+              onChange={(e) => setForm({ ...form, action: e.target.value })}
+            >
               <option value="buy">買進</option>
               <option value="sell">賣出</option>
             </select>
@@ -114,6 +120,7 @@ export default function Transactions() {
           <label>
             股數
             <input
+              name="shares"
               type="number"
               step="any"
               min="0"
@@ -126,6 +133,7 @@ export default function Transactions() {
           <label>
             成交價
             <input
+              name="price"
               type="number"
               step="any"
               min="0"
@@ -138,6 +146,7 @@ export default function Transactions() {
           <label>
             日期
             <input
+              name="trade_date"
               type="date"
               value={form.trade_date}
               onChange={(e) => setForm({ ...form, trade_date: e.target.value })}
@@ -148,7 +157,11 @@ export default function Transactions() {
 
         <label className="tx-note">
           備註（選填）
-          <input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+          <input
+            name="note"
+            value={form.note}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+          />
         </label>
 
         {error && <p className="auth-error">{error}</p>}
