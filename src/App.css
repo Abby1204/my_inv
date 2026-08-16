@@ -1,0 +1,156 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar .brand {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.navbar a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  color: var(--accent);
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+.nav-user {
+  font-size: 14px;
+}
+
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-loading, .page-error {
+  padding: 40px;
+  text-align: center;
+}
+
+.page-error {
+  color: var(--danger);
+}
+
+/* Auth */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.auth-card h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.auth-subtitle {
+  margin: 0 0 4px;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.auth-error {
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.auth-info {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.auth-toggle {
+  background: transparent;
+  border: none;
+  text-decoration: underline;
+}
+
+/* Dashboard */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.total-value {
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.warn-banner {
+  color: #fbbf24;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.rollup-table td:nth-child(3),
+.rollup-table td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Transactions */
+.tx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  margin-bottom: 28px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tx-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.tx-form-row label, .tx-note {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.tx-form button {
+  align-self: flex-start;
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  padding: 0;
+  text-decoration: underline;
+}
