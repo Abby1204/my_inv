@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
@@ -22,6 +22,8 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [monthFilter, setMonthFilter] = useState('all')
+  const [tickerFilter, setTickerFilter] = useState('all')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -53,6 +55,22 @@ export default function Transactions() {
   }, [user.id])
 
   useEffect(() => { load() }, [load])
+
+  const months = useMemo(
+    () => [...new Set(transactions.map((t) => t.trade_date.slice(0, 7)))].sort((a, b) => b.localeCompare(a)),
+    [transactions]
+  )
+  const tickers = useMemo(
+    () => [...new Set(transactions.map((t) => t.ticker))].sort(),
+    [transactions]
+  )
+  const filteredTransactions = useMemo(
+    () => transactions.filter((t) =>
+      (monthFilter === 'all' || t.trade_date.startsWith(monthFilter)) &&
+      (tickerFilter === 'all' || t.ticker === tickerFilter)
+    ),
+    [transactions, monthFilter, tickerFilter]
+  )
 
   function startEdit(t) {
     setEditingId(t.id)
@@ -207,10 +225,24 @@ export default function Transactions() {
       </form>
 
       <h3>歷史紀錄</h3>
+      {!loading && transactions.length > 0 && (
+        <div className="tx-filters">
+          <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)}>
+            <option value="all">全部月份</option>
+            {months.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+          <select value={tickerFilter} onChange={(e) => setTickerFilter(e.target.value)}>
+            <option value="all">全部代號</option>
+            {tickers.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+      )}
       {loading ? (
         <p>讀取中...</p>
       ) : transactions.length === 0 ? (
         <p>還沒有任何交易紀錄。</p>
+      ) : filteredTransactions.length === 0 ? (
+        <p>沒有符合篩選條件的交易紀錄。</p>
       ) : (
         <table className="tx-table">
           <thead>
@@ -226,7 +258,7 @@ export default function Transactions() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => (
+            {filteredTransactions.map((t) => (
               <tr key={t.id}>
                 <td>{t.trade_date}</td>
                 <td>{t.ticker}</td>

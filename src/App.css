@@ -270,6 +270,16 @@
   gap: 12px;
 }
 
+.tx-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tx-filters select {
+  flex: 1;
+}
+
 .link-btn {
   background: transparent;
   border: none;
