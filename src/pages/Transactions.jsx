@@ -77,10 +77,16 @@ export default function Transactions() {
   // Net shares + weighted-avg cost per ticker, scoped to whatever's
   // currently filtered — reuses the same math the Dashboard uses for
   // holdings, just fed the filtered subset instead of everything.
-  const summary = useMemo(
-    () => computeHoldings(filteredTransactions),
-    [filteredTransactions]
-  )
+  // computeHoldings processes buys/sells in array order, so it needs
+  // oldest-first input regardless of how the list below is displayed.
+  const summary = useMemo(() => {
+    const chronological = [...filteredTransactions].sort((a, b) =>
+      a.trade_date === b.trade_date
+        ? a.created_at.localeCompare(b.created_at)
+        : a.trade_date.localeCompare(b.trade_date)
+    )
+    return computeHoldings(chronological)
+  }, [filteredTransactions])
 
   function startEdit(t) {
     setEditingId(t.id)
