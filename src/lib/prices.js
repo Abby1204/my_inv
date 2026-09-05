@@ -1,16 +1,15 @@
 // Live quotes via Yahoo Finance's public chart endpoint, routed through a
-// CORS proxy since Yahoo does not send Access-Control-Allow-Origin headers.
-// This has no API key and no guaranteed uptime SLA — fine for a personal
-// dashboard, but treat failures as "price temporarily unavailable", not fatal.
-
-const PROXIES = [
-  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-]
+// small Cloudflare Worker we own (see ../../cloudflare-worker/) that adds
+// CORS headers and forwards only to Yahoo's chart API. Public CORS proxies
+// (allorigins.win, corsproxy.io, r.jina.ai) all turned out too unreliable —
+// dead, paywalled, or rate-limited under the ~15-ticker bursts this app
+// sends — so this replaced all of them rather than being another one to
+// chase when it inevitably breaks too.
+const PROXY_URL = 'https://yahoo-finance-proxy.abbycha23.workers.dev/'
+const PROXY_TIMEOUT_MS = 6_000
 
 const cache = new Map() // ticker -> { price, changePercent, fetchedAt }
 const CACHE_TTL_MS = 60_000
-const PROXY_TIMEOUT_MS = 6_000
 
 async function fetchWithTimeout(url, timeoutMs) {
   const controller = new AbortController()
@@ -22,20 +21,6 @@ async function fetchWithTimeout(url, timeoutMs) {
   }
 }
 
-async function fetchViaProxies(yahooUrl) {
-  let lastError
-  for (const buildProxyUrl of PROXIES) {
-    try {
-      const res = await fetchWithTimeout(buildProxyUrl(yahooUrl), PROXY_TIMEOUT_MS)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return await res.json()
-    } catch (err) {
-      lastError = err
-    }
-  }
-  throw lastError
-}
-
 export async function getQuote(ticker) {
   const cached = cache.get(ticker)
   if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
@@ -43,7 +28,10 @@ export async function getQuote(ticker) {
   }
 
   const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`
-  const data = await fetchViaProxies(yahooUrl)
+  const res = await fetchWithTimeout(`${PROXY_URL}?url=${encodeURIComponent(yahooUrl)}`, PROXY_TIMEOUT_MS)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const data = await res.json()
+
   const result = data?.chart?.result?.[0]
   if (!result) throw new Error(`No data for ${ticker}`)
 
